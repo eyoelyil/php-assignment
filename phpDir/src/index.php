@@ -11,13 +11,28 @@ $user = 'lionUser';
 //database user password
 $pass = 'lionPass';
 
+// Database name
+$db = 'lionDB';
+
 // check the MySQL connection status
-$conn = new mysqli($host, $user, $pass);
+$conn = new mysqli($host, $user, $pass, $db);
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 } else {
     //echo "Connected to MySQL server successfully!";  
 }
+
+// Create a table in the MySQL database.
+$sql = "SELECT * FROM books";
+
+// Execute the query to get the results.
+$result = $conn->query($sql);
+
+// Loop through the results and print them out.
+$books = mysqli_fetch_all($result, MYSQLI_ASSOC);
+
+print_r($books);
+
 
 ?>
 
