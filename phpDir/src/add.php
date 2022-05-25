@@ -1,5 +1,7 @@
 <?php
 
+include('config/db_connect.php');
+
 $title = $author = $isbn = $synopsis = '';
 $errors = array('title' => '', 'author' => '', 'isbn' => '', 'synopsis' => '');
 
@@ -32,7 +34,7 @@ if(isset($_POST['submit'])){
         $errors['synopsis'] = 'A synopsis is required <br />';
     } else {
         $synopsis = $_POST['synopsis'];
-        if(!preg_match('/^[a-zA-Z\s]+$/', $synopsis)) {
+        if(!preg_match('/^[A-Za-z0-9.,+]/', $synopsis)) {
             $errors['synopsis'] = 'Synopsis must be letters and spaces only';
         }
     }
@@ -40,9 +42,23 @@ if(isset($_POST['submit'])){
     if(array_filter($errors)) {
         //echo 'errors in the form';
     } else {
-       
+        // prevent sql injection
+       $title = mysqli_real_escape_string($conn, $_POST['title']);
+       $author = mysqli_real_escape_string($conn, $_POST['author']);
+       $isbn = mysqli_real_escape_string($conn, $_POST['isbn']);
+       $synopsis = mysqli_real_escape_string($conn, $_POST['synopsis']);
+
+        // create sql 
+        $sql = "INSERT INTO books (title, author, isbn, synopsis) VALUES ('$title', '$author', '$isbn', '$synopsis')";
+
+        // save to db and check
+        if(mysqli_query($conn, $sql)) {
+            // success
             header('Location: /index.php');
-       
+        } else {
+            // error
+            echo 'query error: ' . mysqli_error($conn);
+        }
     }
 
 }
@@ -56,7 +72,7 @@ if(isset($_POST['submit'])){
     <title>Book Store</title>
 </head>
 
-    <?php include ('header.php'); ?>
+    <?php include ('./templates/header.php'); ?>
 
     <section class="container green-text">
         <h4 class="center">Add a Book</h4>
@@ -79,7 +95,7 @@ if(isset($_POST['submit'])){
         </form>
     </section>
 
-    <?php include ('footer.php'); ?>
+    <?php include ('./templates/footer.php'); ?>
 
 
 </html>
